@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
@@ -17,21 +18,22 @@ import java.util.Map;
 public class ClientsList {
 
     private static final Type TYPE = new TypeToken<List<Client>>(){}.getType();
+    private static final File CLIENTS_FILE = new File("siphon/clients.json");
+    private static final Path FILE_DIR = CLIENTS_FILE.toPath().getParent();
 
     private Gson gson;
-    private File clientsFile;
     private Map<String, Client> clients;
 
-    public ClientsList(File file) throws IOException {
+    public ClientsList() throws IOException {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.clientsFile = file;
         this.clients = new HashMap<>();
         this.load();
     }
 
     public void load() throws IOException {
-        if(clientsFile.exists()) {
-            List<Client> clientsList = gson.fromJson(Files.readString(clientsFile.toPath()), TYPE);
+        Files.createDirectories(FILE_DIR);
+        if(CLIENTS_FILE.exists()) {
+            List<Client> clientsList = gson.fromJson(Files.readString(CLIENTS_FILE.toPath()), TYPE);
             for(Client client: clientsList) {
                 client.revive();
                 addClient(client);
@@ -42,7 +44,7 @@ public class ClientsList {
     }
 
     public void save() throws IOException {
-        Files.writeString(clientsFile.toPath(), gson.toJson(clients.values()), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(clients.values()), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public void addClient(Client client) {
@@ -54,6 +56,10 @@ public class ClientsList {
 
     public void removeClient(Client client) {
         clients.remove(client.name);
+    }
+
+    public Client getClient(String name) {
+        return clients.get(name);
     }
 
 }

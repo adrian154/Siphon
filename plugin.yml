@@ -1,0 +1,7 @@
+main: dev.bithole.siphon.SiphonPlugin
+name: Siphon
+version: 0.0.1
+description: A simple REST API for accessing your Minecraft server
+api-version: 1.19
+author: adrianz
+website: https://github.com/adrian154/Siphon
