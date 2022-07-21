@@ -1,4 +1,4 @@
-package dev.bithole.siphon.core;
+package dev.bithole.siphon.core.api;
 
 public class SiphonEvent {
 

@@ -1,8 +1,8 @@
 package dev.bithole.siphon;
 
-import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.api.Siphon;
 import dev.bithole.siphon.core.SiphonImpl;
-import dev.bithole.siphon.core.SiphonEvent;
+import dev.bithole.siphon.core.api.SiphonEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;

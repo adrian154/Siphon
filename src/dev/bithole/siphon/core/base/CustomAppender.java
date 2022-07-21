@@ -1,5 +1,6 @@
-package dev.bithole.siphon.core;
+package dev.bithole.siphon.core.base;
 
+import dev.bithole.siphon.core.SiphonImpl;
 import dev.bithole.siphon.core.base.events.LogMessageEvent;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Core;

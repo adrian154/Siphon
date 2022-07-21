@@ -1,6 +1,6 @@
 package dev.bithole.siphon.core.base.events;
 
-import dev.bithole.siphon.core.SiphonEvent;
+import dev.bithole.siphon.core.api.SiphonEvent;
 
 import java.util.UUID;
 

@@ -26,7 +26,7 @@ The choice of protocols used by Siphon was made based on the following principle
 
 ## Package Layout
 
-Siphon is designed with portability in mind, since ports to Fabric/Forge are planned. Thus, efforts have been made to decouple the core functionality of Siphon from the loader-specific parts. As a rule, all classes in `dev.bithole.siphon.core` should be portable between plugin/mod environments. Implementations for the basic endpoints can be found in the `dev.bithole.siphon.base` package. To ensure that the base API is implemented consistently between versions of Siphon, platform-independent components of the base API are found in the `dev.bithole.siphon.core.base` package.
+Siphon is designed with portability in mind, since ports to Fabric/Forge are planned. Thus, efforts have been made to decouple the core functionality of Siphon from the implementation details, which is reflected in the package structure of Siphon. The core implementation of Siphon is found in `dev.bithole.siphon.core`, while classes mentioning platform-specific APIs are found in other packages. To ensure that the base API is implemented consistently between versions of Siphon, platform-independent components of the base API are found in the `dev.bithole.siphon.core.base` package. All parts of the developer-facing API are located in `dev.bithole.siphon.core.api`.
 
 # Error Reporting
 
@@ -232,4 +232,4 @@ TODO
 
 All Siphon events descend from the [`SiphonEvent`](https://github.com/adrian154/Siphon/blob/master/src/dev/bithole/siphon/core/SiphonEvent.java) class. Events are serialized by Gson before being delivered to clients. The event's name will be used to determine the permission node which controls event access; for example, if your event is named `CustomEvent`, it will only be sent to clients with the `event.CustomEvent` permission.
 
-To broadcast an event, simply call the [`Siphon#broadcastEvent`](https://github.com/adrian154/Siphon/blob/77061a4f5659e2823ce9415c8037173654747e70/src/dev/bithole/siphon/core/Siphon.java#L82) method.
+To broadcast an event, simply call the [`Siphon#broadcastEvent`](https://github.com/adrian154/Siphon/blob/8389b225caf92e841e8807865d68652fa3d728f7/src/dev/bithole/siphon/core/Siphon.java#L4) method.

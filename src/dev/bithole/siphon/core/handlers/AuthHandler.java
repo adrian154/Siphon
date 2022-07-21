@@ -1,6 +1,6 @@
 package dev.bithole.siphon.core.handlers;
 
-import dev.bithole.siphon.core.APIException;
+import dev.bithole.siphon.core.api.APIException;
 import dev.bithole.siphon.core.Client;
 import dev.bithole.siphon.core.SiphonImpl;
 import io.undertow.server.HttpHandler;

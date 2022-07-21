@@ -1,4 +1,4 @@
-package dev.bithole.siphon.core;
+package dev.bithole.siphon.core.api;
 
 // To avoid error message disclosure, all API errors are thrown with this special type
 public class APIException extends Exception {

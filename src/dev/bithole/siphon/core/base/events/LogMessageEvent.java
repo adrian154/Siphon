@@ -1,6 +1,6 @@
 package dev.bithole.siphon.core.base.events;
 
-import dev.bithole.siphon.core.SiphonEvent;
+import dev.bithole.siphon.core.api.SiphonEvent;
 import org.apache.logging.log4j.core.LogEvent;
 
 public class LogMessageEvent extends SiphonEvent {
