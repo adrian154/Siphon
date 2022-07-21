@@ -230,6 +230,6 @@ TODO
 
 # Custom Events
 
-All Siphon events descend from the [`SiphonEvent`](https://github.com/adrian154/Siphon/blob/master/src/dev/bithole/siphon/core/SiphonEvent.java) class. Events are serialized by Gson before being delivered to clients. The event's name will be used to determine the permission node which controls event access; for example, if your event is named `CustomEvent`, it will only be sent to clients with the `event.CustomEvent` permission.
+All Siphon events descend from the [`SiphonEvent`](https://github.com/adrian154/Siphon/blob/master/src/dev/bithole/siphon/core/api/SiphonEvent.java) class. Events are serialized by Gson before being delivered to clients. The event's name will be used to determine the permission node which controls event access; for example, if your event is named `CustomEvent`, it will only be sent to clients with the `event.CustomEvent` permission.
 
-To broadcast an event, simply call the [`Siphon#broadcastEvent`](https://github.com/adrian154/Siphon/blob/8389b225caf92e841e8807865d68652fa3d728f7/src/dev/bithole/siphon/core/Siphon.java#L4) method.
+To broadcast an event, simply call the [`Siphon#broadcastEvent`](https://github.com/adrian154/Siphon/blob/14fb315850d642bae326c41af0d52feb420af4f8/src/dev/bithole/siphon/core/api/Siphon.java#L6) method.
