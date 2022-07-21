@@ -75,9 +75,22 @@ Several useful events are built into Siphon.
 
 ## Event: log
 
-TODO
+This event fires whenever a message is logged.
+
+```
+{
+  "event": "log",
+  "message": String,
+  "loggerName": String,
+  "level": String,
+  "timestamp": Number,
+  "thread": String
+}
+```
 
 ## Event: chat
+
+This event fires whenever a player sends a chat message.
 
 ```
 {
@@ -90,21 +103,37 @@ TODO
 
 ## Event: player-death
 
+This event fires whenever a player dies.
+
 ```
 {
   "event": "player-death",
   "uuid": String,
-  "playerName": String
+  "playerName": String,
+  "message": String
 }
 ```
 
 ## Event: player-quit
+
+This event fires whenever a player quits.
 
 ```
 {
   "event": "player-quit",
   "uuid": String,
   "playerName": String
+}
+```
+
+## Event: ping
+
+This event fires whenever the server receives a server list ping.
+
+```
+{
+  "event": "ping",
+  "address": String
 }
 ```
 

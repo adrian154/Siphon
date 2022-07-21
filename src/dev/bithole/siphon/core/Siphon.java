@@ -70,7 +70,7 @@ public class Siphon {
 
     public void broadcastEvent(SiphonEvent event) {
 
-        String permissionNode = "event." + event.name;
+        String permissionNode = "event." + event.event;
         String body = gson.toJson(event);
 
         // TODO: deliver to all authorized SSE listeners

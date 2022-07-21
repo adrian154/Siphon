@@ -2,10 +2,10 @@ package dev.bithole.siphon.core;
 
 public abstract class SiphonEvent {
 
-    public final String name;
+    public final String event;
 
     public SiphonEvent(String name) {
-        this.name = name;
+        this.event = name;
     }
 
 }
