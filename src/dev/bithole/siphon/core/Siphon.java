@@ -8,6 +8,8 @@ import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.sse.ServerSentEventConnection;
+import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HttpString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -26,6 +28,7 @@ public class Siphon {
     private SiphonConfig config;
     private Undertow server;
     private PathHandler pathHandler;
+    private ServerSentEventHandler sseHandler;
     public final Logger logger;
 
     public Siphon(Logger logger) throws IOException {
@@ -35,12 +38,12 @@ public class Siphon {
         this.gson = new Gson();
 
         this.setupAppender();
-
-        // FIXME
-        this.config.addClient(new Client("adrian", "password"));
+        this.addTestClient();
 
         // set up path handler, which will control all of our routes
         this.pathHandler = Handlers.path(new DefaultHandler());
+        this.sseHandler = Handlers.serverSentEvents();
+        this.pathHandler.addPrefixPath("/events", sseHandler);
 
         this.server = Undertow.builder()
                 .addHttpListener(config.getPort(), "0.0.0.0")
@@ -49,6 +52,15 @@ public class Siphon {
 
         this.server.start();
 
+    }
+
+    private void addTestClient() throws IOException {
+        if(this.config.getClient("test") == null) {
+            Client client = new Client("test", "password");
+            client.addPermission("*");
+            config.addClient(client);
+            config.save();
+        }
     }
 
     // I f***ing hate Log4j. It is a monstrosity.
@@ -63,7 +75,6 @@ public class Siphon {
         exchange.getResponseSender().send(gson.toJson(object));
     }
 
-
     public SiphonConfig getConfig() {
         return config;
     }
@@ -73,7 +84,13 @@ public class Siphon {
         String permissionNode = "event." + event.event;
         String body = gson.toJson(event);
 
-        // TODO: deliver to all authorized SSE listeners
+        // deliver to all authorized SSE listeners
+        for(ServerSentEventConnection connection: sseHandler.getConnections()) {
+            Client client = connection.getAttachment(AuthHandler.CLIENT);
+            if(client != null && client.testPermission(permissionNode)) {
+                connection.send(body);
+            }
+        }
 
         // trigger webhooks
         for(Client client: config.getClients()) {

@@ -18,14 +18,17 @@ The last point was the primary motivation behind the creation of Siphon. By expo
 
 The choice of protocols used by Siphon was made based on the following principles:
 - HTTP is spoken by just about everything, and its natural request-response structure make it a perfect fit for querying data and triggering actions.
-- Server-sent events are available in virtually every web browser. Since duplex communication is not necessary, we chose not to use WebSocket.
+- Server-sent events are available in virtually every web browser. We chose to use SSE over WebSocket for a variety of reasons:
+    - Duplex communication is not necessary, so SSE is sufficient for our use-case
+    - SSE clients in browsers feature auto-reconnection  
+    - SSE is easier to reverse-proxy
 - Webhooks allow events to be delivered without maintaining a stateful connection as demanded by SSE or WebSocket. This also enables interaction with services like IFTTT.
 
 ## Package Layout
 
 Siphon is designed with portability in mind, since ports to Fabric/Forge are planned. Thus, efforts have been made to decouple the core functionality of Siphon from the loader-specific parts. As a rule, all classes in `dev.bithole.siphon.core` should be portable between plugin/mod environments. Implementations for the basic endpoints can be found in the `dev.bithole.siphon.base` package.
 
-# Error Handling
+# Error Reporting
 
 If a request could not be completed, the response will have the appropriate 4xx or 5xx error code. The body of the response will be a JSON object with a field named `error` containing a human-readable message describing the error.
 
@@ -51,7 +54,7 @@ If a request failed to authenticate (i.e. a response with a status of 401 was re
 
 # Events
 
-Events are a method of notifying all authorized cilents that something has occurred. They can be received through webhooks or server-sent events.
+Events are a method of notifying all authorized clients that something has occurred. They can be received through webhooks or server-sent events.
 
 Whether a client is authorized to receive an event is determined using the permissions system. For example, only clients with the `event.log` permission node will receive the `log` event.
 
@@ -67,7 +70,7 @@ All requests to webhook URLs will be made with the `User-Agent` header set to `S
 
 ## Server-Sent Events
 
-TODO
+Events can be streamed using the [Server Sent Events](https://html.spec.whatwg.org/multipage/server-sent-events.html) API from the `/events` endpoint.
 
 # Built-In Events
 
@@ -137,12 +140,22 @@ This event fires whenever the server receives a server list ping.
 }
 ```
 
-## Event: server-start
+## Event: enable
 
-TODO
+This event fires whenever the Siphon plugin is enabled, usually when the server starts.
 
-## Event: server-stop
+```
+{
+  "event": "enable"
+}
+```
 
-TODO
+## Event: disable
 
-Note that if the server crashes this event may not be sent.
+This event fires whenever the Siphon plugin is disabled, usually when the server stops. Note that if the server crashes this event may not be sent.
+
+```
+{
+  "event": "disable"
+}
+```

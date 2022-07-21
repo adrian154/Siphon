@@ -3,9 +3,9 @@ package dev.bithole.siphon.core.handlers;
 import dev.bithole.siphon.core.APIException;
 import dev.bithole.siphon.core.Client;
 import dev.bithole.siphon.core.Siphon;
-import dev.bithole.siphon.core.SiphonSecurityContext;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.AttachmentKey;
 import io.undertow.util.HttpString;
 
 import java.net.InetSocketAddress;
@@ -17,6 +17,7 @@ import java.util.Map;
 // so... we've chosen to roll our own
 public class AuthHandler implements HttpHandler {
 
+    public static final AttachmentKey<Client> CLIENT = AttachmentKey.create(Client.class);
     private static final long AUTH_FAIL_TIMEOUT = 1000;
 
     private final Siphon siphon;
@@ -39,7 +40,13 @@ public class AuthHandler implements HttpHandler {
             throw new APIException(429, "Too many failed authentications");
         }
 
-        String[] parts = exchange.getRequestHeaders().getFirst(new HttpString("Authorization")).split("\\s+");
+        String authHeader = exchange.getRequestHeaders().getFirst(new HttpString("Authorization"));
+        if(authHeader == null) {
+            exchange.getResponseHeaders().put(new HttpString("WWW-Authenticate"), "Basic realm=\"Siphon\"");
+            throw new APIException(401, "You must authenticate to access this API");
+        }
+
+        String[] parts = authHeader.split("\\s+");
         if(parts.length != 2) {
             throw new APIException(400, "Invalid authorization header");
         }
@@ -59,7 +66,7 @@ public class AuthHandler implements HttpHandler {
             throw new APIException(401, "Invalid credentials");
         }
 
-        exchange.setSecurityContext(new SiphonSecurityContext(client));
+        exchange.putAttachment(CLIENT, client);
         next.handleRequest(exchange);
 
     }

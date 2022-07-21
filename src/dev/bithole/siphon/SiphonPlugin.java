@@ -1,6 +1,7 @@
 package dev.bithole.siphon;
 
 import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.SiphonEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -26,11 +27,14 @@ public class SiphonPlugin extends JavaPlugin {
         this.eventListener = new EventListener(siphon);
         this.getServer().getPluginManager().registerEvents(eventListener, this);
 
+        // broadcast enable event
+        siphon.broadcastEvent(new SiphonEvent("enable"));
+
     }
 
     @Override
     public void onDisable() {
-
+        siphon.broadcastEvent(new SiphonEvent("disable"));
     }
 
 }

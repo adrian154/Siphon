@@ -1,6 +1,6 @@
 package dev.bithole.siphon.core;
 
-public abstract class SiphonEvent {
+public class SiphonEvent {
 
     public final String event;
 
