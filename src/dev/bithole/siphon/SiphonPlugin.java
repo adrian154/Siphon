@@ -1,6 +1,7 @@
 package dev.bithole.siphon;
 
 import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.SiphonImpl;
 import dev.bithole.siphon.core.SiphonEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
 
 public class SiphonPlugin extends JavaPlugin {
 
-    private Siphon siphon;
+    private SiphonImpl siphon;
     private EventListener eventListener;
 
     public Siphon getSiphon() {
@@ -19,7 +20,7 @@ public class SiphonPlugin extends JavaPlugin {
     public void onEnable() {
 
         try {
-            this.siphon = new Siphon(this.getLogger());
+            this.siphon = new SiphonImpl(this.getLogger());
         } catch(IOException ex) {
             throw new IllegalArgumentException("Failed to instantiate server", ex);
         }

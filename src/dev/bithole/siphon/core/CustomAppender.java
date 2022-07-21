@@ -11,9 +11,9 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 @Plugin(name="Siphon", category=Core.CATEGORY_NAME, elementType=Appender.ELEMENT_TYPE)
 public class CustomAppender extends AbstractAppender {
 
-    private final Siphon siphon;
+    private final SiphonImpl siphon;
 
-    public CustomAppender(Siphon siphon) {
+    public CustomAppender(SiphonImpl siphon) {
         super(
                 "SiphonAppender",
                 null,

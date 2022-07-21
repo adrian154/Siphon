@@ -1,6 +1,6 @@
 package dev.bithole.siphon;
 
-import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.SiphonImpl;
 import dev.bithole.siphon.core.base.events.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,9 +10,9 @@ import org.bukkit.event.server.ServerListPingEvent;
 
 public class EventListener implements Listener {
 
-    private final Siphon siphon;
+    private final SiphonImpl siphon;
 
-    public EventListener(Siphon siphon) {
+    public EventListener(SiphonImpl siphon) {
         this.siphon = siphon;
     }
 

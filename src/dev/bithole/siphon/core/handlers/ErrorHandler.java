@@ -1,19 +1,18 @@
 package dev.bithole.siphon.core.handlers;
 
 import dev.bithole.siphon.core.APIException;
-import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.SiphonImpl;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HttpString;
 
 import java.util.logging.Level;
 
 public class ErrorHandler implements HttpHandler {
 
-    private final Siphon siphon;
+    private final SiphonImpl siphon;
     private final HttpHandler next;
 
-    public ErrorHandler(Siphon siphon, HttpHandler next) {
+    public ErrorHandler(SiphonImpl siphon, HttpHandler next) {
         this.siphon = siphon;
         this.next = next;
     }

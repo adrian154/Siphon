@@ -2,7 +2,7 @@ package dev.bithole.siphon.core.handlers;
 
 import dev.bithole.siphon.core.APIException;
 import dev.bithole.siphon.core.Client;
-import dev.bithole.siphon.core.Siphon;
+import dev.bithole.siphon.core.SiphonImpl;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.AttachmentKey;
@@ -20,11 +20,11 @@ public class AuthHandler implements HttpHandler {
     public static final AttachmentKey<Client> CLIENT = AttachmentKey.create(Client.class);
     private static final long AUTH_FAIL_TIMEOUT = 1000;
 
-    private final Siphon siphon;
+    private final SiphonImpl siphon;
     private final HttpHandler next;
     private final Map<InetSocketAddress, Long> lastFailedAuth;
 
-    public AuthHandler(Siphon siphon, HttpHandler next) {
+    public AuthHandler(SiphonImpl siphon, HttpHandler next) {
         this.siphon = siphon;
         this.next = next;
         this.lastFailedAuth = new HashMap<>();

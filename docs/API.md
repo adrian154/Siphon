@@ -32,6 +32,14 @@ Siphon is designed with portability in mind, since ports to Fabric/Forge are pla
 
 If a request could not be completed, the response will have the appropriate 4xx or 5xx error code. The body of the response will be a JSON object with a field named `error` containing a human-readable message describing the error.
 
+**Example**
+
+```
+{
+  "error": "Insufficient pylons"
+}
+```
+
 # Authentication
 
 Clients may be configured to authenticate with a user-provided password, or with a randomly generated 256-bit secret. The former authentication method should only be used with human users who will be directly accessing the API through a web interface.
@@ -44,7 +52,9 @@ Here is some example JavaScript code to construct the Authorization header:
 header = `Basic ${Buffer.from(`${clientID}:${secret}`).toString("base64")}`;
 ```
 
-If the credentials for a request were missing or could not be determined, a 400 status code is sent in response. If the credentials are incorrect, a 401 status code is sent.
+Requests with no `Authorization` header will be denied with a 401 status code, with the `WWW-Authenticate` header set appropriately to trigger an HTTP Basic authentication flow in clients which support it.
+
+If the `Authorization` header is present but the credentials were malformed, a 400 status code is sent in response. If the credentials are incorrect, a 401 status code is sent.
 
 If a request failed to authenticate (i.e. a response with a status of 401 was received), the client must not send any other requests for 1000ms. Any requests sent during this period will be denied with a status code of 429.
 
@@ -105,10 +115,6 @@ This endpoint broadcasts a chat message to all online players.
 **Body:** A chat [component](https://minecraft.fandom.com/wiki/Raw_JSON_text_format)
 
 **Response:** None
-
-# Custom Endpoints
-
-TODO
 
 # Events
 
@@ -213,6 +219,14 @@ This event fires whenever the Siphon plugin is disabled, usually when the server
   "event": "disable"
 }
 ```
+
+# Adding Functionality to Siphon
+
+Siphon offers a convenient API for adding new API methods and events in your own plugins.
+
+# Custom Endpoints
+
+TODO
 
 # Custom Events
 
