@@ -30,7 +30,7 @@ public class ErrorHandler implements HttpHandler {
             } else {
                 siphon.logger.log(Level.SEVERE, "Error while processing request", ex);
                 exchange.setStatusCode(500);
-                exchange.getResponseSender().send("Internal server error");
+                siphon.sendJSON(exchange, new APIException.ErrorResponse("Internal server error"));
             }
         }
     }

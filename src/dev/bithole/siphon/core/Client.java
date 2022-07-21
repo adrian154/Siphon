@@ -3,6 +3,10 @@ package dev.bithole.siphon.core;
 import org.bouncycastle.crypto.generators.SCrypt;
 
 import java.io.InvalidObjectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,16 +37,17 @@ public class Client {
     private String salt;
     private String keyHash;
     private Set<String> permissions;
+    private String webhookURL;
 
     private transient byte[] passwordHashBuf;
     private transient byte[] saltBuf;
     private transient byte[] keyHashBuf;
+    private transient URI webhookTarget;
 
     private Client(String name) {
         this.name = name;
         this.permissions = new HashSet<>();
     }
-
 
     public Client(String name, String password) {
         this(name);
@@ -79,6 +84,14 @@ public class Client {
             throw new InvalidObjectException(String.format("Neither a password hash nor a key hash was provided for client \"%s\"", name));
         }
 
+        if(webhookURL != null) {
+            try {
+                webhookTarget = new URI(webhookURL);
+            } catch(URISyntaxException ex) {
+                throw new InvalidObjectException("Invalid URL");
+            }
+        }
+
     }
 
     private byte[] hashPassword(String password) {
@@ -112,11 +125,15 @@ public class Client {
     }
 
     public boolean auth(String secret) {
-        if(passwordHashBuf != null) {
+        if(keyHashBuf != null) {
             return compare(KEY_DIGEST.digest(BASE64_DECODER.decode(secret)), keyHashBuf);
         } else {
             return compare(hashPassword(secret), passwordHashBuf);
         }
+    }
+
+    public URI getWebhookURL() {
+        return webhookTarget;
     }
 
     // Constant-time comparison, using bitwise ops to reduce the chance of JIT introducing an early loop exit.
@@ -129,6 +146,7 @@ public class Client {
         for(int i = 0; i < buf1.length; i++) {
             result |= buf1[i] ^ buf2[i];
         }
+
         return result == 0;
     }
 

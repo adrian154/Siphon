@@ -15,6 +15,10 @@ public class APIException extends Exception {
         public ErrorResponse(APIException ex) {
             this.message = ex.getMessage();
         }
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
     }
 
 }

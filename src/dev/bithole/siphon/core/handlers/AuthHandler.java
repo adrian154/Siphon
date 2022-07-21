@@ -8,21 +8,36 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HttpString;
 
+import java.net.InetSocketAddress;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 // Undertow has its own authentication infrastructure, but it's total overkill for our purposes
 // so... we've chosen to roll our own
 public class AuthHandler implements HttpHandler {
 
+    private static final long AUTH_FAIL_TIMEOUT = 1000;
+
     private final Siphon siphon;
     private final HttpHandler next;
+    private final Map<InetSocketAddress, Long> lastFailedAuth;
 
     public AuthHandler(Siphon siphon, HttpHandler next) {
         this.siphon = siphon;
         this.next = next;
+        this.lastFailedAuth = new HashMap<>();
     }
 
     public void handleRequest(HttpServerExchange exchange) throws Exception {
+
+        exchange.getSourceAddress();
+
+        // ratelimit clients that send a lot of invalid auth requests
+        Long lastAuthFailTime = lastFailedAuth.get(exchange.getSourceAddress());
+        if(lastAuthFailTime != null && System.currentTimeMillis() - lastAuthFailTime < AUTH_FAIL_TIMEOUT) {
+            throw new APIException(429, "Too many failed authentications");
+        }
 
         String[] parts = exchange.getRequestHeaders().getFirst(new HttpString("Authorization")).split("\\s+");
         if(parts.length != 2) {
@@ -38,8 +53,9 @@ public class AuthHandler implements HttpHandler {
             throw new APIException(400, "Malformed credentials string");
         }
 
-        Client client = siphon.getClients().getClient(credentials[0]);
+        Client client = siphon.getConfig().getClient(credentials[0]);
         if(client == null || !client.auth(credentials[1])) {
+            lastFailedAuth.put(exchange.getSourceAddress(), System.currentTimeMillis());
             throw new APIException(401, "Invalid credentials");
         }
 

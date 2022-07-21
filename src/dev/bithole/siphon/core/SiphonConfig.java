@@ -1,50 +1,51 @@
 package dev.bithole.siphon.core;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InvalidObjectException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class ClientsList {
+public class SiphonConfig {
 
-    private static final Type TYPE = new TypeToken<List<Client>>(){}.getType();
-    private static final File CLIENTS_FILE = new File("siphon/clients.json");
-    private static final Path FILE_DIR = CLIENTS_FILE.toPath().getParent();
+    private static final File CLIENTS_FILE = new File("siphon.json");
 
     private Gson gson;
     private Map<String, Client> clients;
+    private int port;
 
-    public ClientsList() throws IOException {
+    public SiphonConfig() throws IOException {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.clients = new HashMap<>();
+        this.port = 8080;
         this.load();
     }
 
     public void load() throws IOException {
-        Files.createDirectories(FILE_DIR);
         if(CLIENTS_FILE.exists()) {
-            List<Client> clientsList = gson.fromJson(Files.readString(CLIENTS_FILE.toPath()), TYPE);
-            for(Client client: clientsList) {
+
+            Config config = gson.fromJson(Files.readString(CLIENTS_FILE.toPath()), Config.class);
+
+            // build clients map
+            for(Client client: config.clients) {
                 client.revive();
                 addClient(client);
             }
+
+            this.port = port;
+
         } else {
             save();
         }
     }
 
     public void save() throws IOException {
-        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(clients.values()), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(new Config(clients.values(), port)), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public void addClient(Client client) {
@@ -54,12 +55,33 @@ public class ClientsList {
         clients.put(client.name, client);
     }
 
+    public int getPort() {
+        return port;
+    }
+
     public void removeClient(Client client) {
         clients.remove(client.name);
     }
 
     public Client getClient(String name) {
         return clients.get(name);
+    }
+
+    public Collection<Client> getClients() {
+        return clients.values();
+    }
+
+    // TODO: probably should be using a Record for this.
+    private static class Config {
+
+        public final Collection<Client> clients;
+        public final int port;
+
+        public Config(Collection<Client> clients, int port) {
+            this.clients = clients;
+            this.port = port;
+        }
+
     }
 
 }
