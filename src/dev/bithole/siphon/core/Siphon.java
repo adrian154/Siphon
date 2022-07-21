@@ -9,6 +9,8 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.util.HttpString;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -32,6 +34,9 @@ public class Siphon {
         this.config = new SiphonConfig();
         this.gson = new Gson();
 
+        this.setupAppender();
+
+        // FIXME
         this.config.addClient(new Client("adrian", "password"));
 
         // set up path handler, which will control all of our routes
@@ -44,6 +49,12 @@ public class Siphon {
 
         this.server.start();
 
+    }
+
+    // I f***ing hate Log4j. It is a monstrosity.
+    private void setupAppender() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        ctx.getRootLogger().addAppender(new CustomAppender(this));
     }
 
     // util method
@@ -61,8 +72,6 @@ public class Siphon {
 
         String permissionNode = "event." + event.name;
         String body = gson.toJson(event);
-
-        System.out.println(body);
 
         // TODO: deliver to all authorized SSE listeners
 

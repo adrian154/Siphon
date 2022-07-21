@@ -4,11 +4,11 @@ import dev.bithole.siphon.core.SiphonEvent;
 
 import java.net.InetAddress;
 
-public class SiphonPingEvent extends SiphonEvent {
+public class PingEvent extends SiphonEvent {
 
     private final InetAddress address;
 
-    public SiphonPingEvent(InetAddress address) {
+    public PingEvent(InetAddress address) {
         super("ping");
         this.address = address;
     }

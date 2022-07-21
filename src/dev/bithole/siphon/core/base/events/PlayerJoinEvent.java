@@ -2,9 +2,9 @@ package dev.bithole.siphon.core.base.events;
 
 import java.util.UUID;
 
-public class SiphonPlayerJoinEvent extends PlayerEvent {
+public class PlayerJoinEvent extends PlayerEvent {
 
-    public SiphonPlayerJoinEvent(UUID uuid, String playerName) {
+    public PlayerJoinEvent(UUID uuid, String playerName) {
         super("player-join", uuid, playerName);
     }
 

@@ -5,7 +5,7 @@ import dev.bithole.siphon.core.SiphonEvent;
 import java.util.UUID;
 
 // Parent for messages involving one player
-public abstract class PlayerEvent extends SiphonEvent {
+public class PlayerEvent extends SiphonEvent {
 
     private final UUID uuid;
     private final String playerName;

@@ -66,3 +66,54 @@ At the moment, Siphon does not support any mechanism for the recipient to verify
 All requests to webhook URLs will be made with the `User-Agent` header set to `Siphon`.
 
 ## Server-Sent Events
+
+TODO
+
+# Built-In Events
+
+Several useful events are built into Siphon.
+
+## Event: log
+
+TODO
+
+## Event: chat
+
+```
+{
+  "event": "chat",
+  "message": String,
+  "uuid": String,
+  "playerName": String
+}
+```
+
+## Event: player-death
+
+```
+{
+  "event": "player-death",
+  "uuid": String,
+  "playerName": String
+}
+```
+
+## Event: player-quit
+
+```
+{
+  "event": "player-quit",
+  "uuid": String,
+  "playerName": String
+}
+```
+
+## Event: server-start
+
+TODO
+
+## Event: server-stop
+
+TODO
+
+Note that if the server crashes this event may not be sent.
