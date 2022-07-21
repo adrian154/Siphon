@@ -26,7 +26,7 @@ The choice of protocols used by Siphon was made based on the following principle
 
 ## Package Layout
 
-Siphon is designed with portability in mind, since ports to Fabric/Forge are planned. Thus, efforts have been made to decouple the core functionality of Siphon from the loader-specific parts. As a rule, all classes in `dev.bithole.siphon.core` should be portable between plugin/mod environments. Implementations for the basic endpoints can be found in the `dev.bithole.siphon.base` package.
+Siphon is designed with portability in mind, since ports to Fabric/Forge are planned. Thus, efforts have been made to decouple the core functionality of Siphon from the loader-specific parts. As a rule, all classes in `dev.bithole.siphon.core` should be portable between plugin/mod environments. Implementations for the basic endpoints can be found in the `dev.bithole.siphon.base` package. To ensure that the base API is implemented consistently between versions of Siphon, platform-independent components of the base API are found in the `dev.bithole.siphon.core.base` package.
 
 # Error Reporting
 
@@ -50,7 +50,65 @@ If a request failed to authenticate (i.e. a response with a status of 401 was re
 
 # Permissions
 
+Permissions dictate what endpoints clients are allowed to interact with and what events clients should receive. No permissions are granted by default. Permissions can be granted by specifying specific nodes or using wildcards. For example, all of the following permissions would grant a client the `example.object.delete` permission:
+
+```
+example.object.delete
+example.*
+*
+```
+
+**WARNING:** These permissions are totally different from regular Minecraft permissions and are separately managed by Siphon.
+
 # Endpoints
+
+Several built-in HTTP endpoints are available for querying information or triggering actions.
+
+## GET /players
+
+**Response:** 
+
+```
+[
+  {
+    "name": String,
+    "uuid": String      
+  },
+  ...
+]
+```
+
+## POST /command
+
+This endpoint runs the supplied command.
+
+**Body:**
+
+```
+{
+  "command": String
+}
+```
+
+**Response:**
+
+```
+{
+  "status": Number
+}
+```
+
+## POST /chat
+
+This endpoint broadcasts a chat message to all online players.
+
+**Body:** A chat [component](https://minecraft.fandom.com/wiki/Raw_JSON_text_format)
+
+**Response:** None
+
+# Custom Endpoints
+
+TODO
 
 # Events
 
@@ -71,10 +129,6 @@ All requests to webhook URLs will be made with the `User-Agent` header set to `S
 ## Server-Sent Events
 
 Events can be streamed using the [Server Sent Events](https://html.spec.whatwg.org/multipage/server-sent-events.html) API from the `/events` endpoint.
-
-# Built-In Events
-
-Several useful events are built into Siphon.
 
 ## Event: log
 
@@ -159,3 +213,9 @@ This event fires whenever the Siphon plugin is disabled, usually when the server
   "event": "disable"
 }
 ```
+
+# Custom Events
+
+All Siphon events descend from the [`SiphonEvent`](https://github.com/adrian154/Siphon/blob/master/src/dev/bithole/siphon/core/SiphonEvent.java) class. Events are serialized by Gson before being delivered to clients. The event's name will be used to determine the permission node which controls event access; for example, if your event is named `CustomEvent`, it will only be sent to clients with the `event.CustomEvent` permission.
+
+To broadcast an event, simply call the [`Siphon#broadcastEvent`](https://github.com/adrian154/Siphon/blob/77061a4f5659e2823ce9415c8037173654747e70/src/dev/bithole/siphon/core/Siphon.java#L82) method.

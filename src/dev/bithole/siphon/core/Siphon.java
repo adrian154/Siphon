@@ -38,7 +38,6 @@ public class Siphon {
         this.gson = new Gson();
 
         this.setupAppender();
-        this.addTestClient();
 
         // set up path handler, which will control all of our routes
         this.pathHandler = Handlers.path(new DefaultHandler());
@@ -52,15 +51,6 @@ public class Siphon {
 
         this.server.start();
 
-    }
-
-    private void addTestClient() throws IOException {
-        if(this.config.getClient("test") == null) {
-            Client client = new Client("test", "password");
-            client.addPermission("*");
-            config.addClient(client);
-            config.save();
-        }
     }
 
     // I f***ing hate Log4j. It is a monstrosity.
