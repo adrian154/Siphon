@@ -30,6 +30,7 @@ public class AuthHandler implements HttpHandler {
         this.lastFailedAuth = new HashMap<>();
     }
 
+    @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
 
         exchange.getSourceAddress();

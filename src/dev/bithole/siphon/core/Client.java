@@ -3,18 +3,13 @@ package dev.bithole.siphon.core;
 import org.bouncycastle.crypto.generators.SCrypt;
 
 import java.io.InvalidObjectException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Client {
 
@@ -43,10 +38,12 @@ public class Client {
     private transient byte[] saltBuf;
     private transient byte[] keyHashBuf;
     private transient URI webhookTarget;
+    private transient Map<String, byte[]> hashCache; // TODO: figure out if this is secure
 
     private Client(String name) {
         this.name = name;
         this.permissions = new HashSet<>();
+        this.hashCache = new HashMap<>();
     }
 
     public Client(String name, String password) {
@@ -92,10 +89,17 @@ public class Client {
             }
         }
 
+        this.hashCache = new HashMap<>();
+
     }
 
     private byte[] hashPassword(String password) {
+        byte[] cached = hashCache.get(password);
+        if(cached != null) {
+            return cached;
+        }
         return SCrypt.generate(password.getBytes(StandardCharsets.UTF_8), saltBuf, 262144, 8, 1, 32);
+        //return hashCache.getOrDefault(password, SCrypt.generate(password.getBytes(StandardCharsets.UTF_8), saltBuf, 262144, 8, 1, 32));
     }
 
     public void addPermission(String permission) {
@@ -128,8 +132,13 @@ public class Client {
         if(keyHashBuf != null) {
             return compare(KEY_DIGEST.digest(BASE64_DECODER.decode(secret)), keyHashBuf);
         } else {
-            return compare(hashPassword(secret), passwordHashBuf);
+            byte[] hash = hashPassword(secret);
+            if(compare(hash, passwordHashBuf)) {
+                hashCache.putIfAbsent(secret, hash);
+                return true;
+            }
         }
+        return false;
     }
 
     public URI getWebhookURL() {

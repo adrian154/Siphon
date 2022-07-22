@@ -76,7 +76,7 @@ Several built-in HTTP endpoints are available for querying information or trigge
 
 ## GET /players
 
-**Response:** 
+**Response:** a JSON Object
 
 ```
 [
@@ -92,27 +92,15 @@ Several built-in HTTP endpoints are available for querying information or trigge
 
 This endpoint runs the supplied command.
 
-**Body:**
+**Body:** a JSON String
 
-```
-{
-  "command": String
-}
-```
-
-**Response:**
-
-```
-{
-  "status": Number
-}
-```
+**Response:** None
 
 ## POST /chat
 
 This endpoint broadcasts a chat message to all online players.
 
-**Body:** A chat [component](https://minecraft.fandom.com/wiki/Raw_JSON_text_format)
+**Body:** a JSON String
 
 **Response:** None
 

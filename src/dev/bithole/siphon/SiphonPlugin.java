@@ -1,8 +1,12 @@
 package dev.bithole.siphon;
 
-import dev.bithole.siphon.core.api.Siphon;
+import dev.bithole.siphon.base.BroadcastChatHandlerImpl;
+import dev.bithole.siphon.base.GetPlayersHandlerImpl;
+import dev.bithole.siphon.base.RunCommandHandlerImpl;
 import dev.bithole.siphon.core.SiphonImpl;
+import dev.bithole.siphon.core.api.Siphon;
 import dev.bithole.siphon.core.api.SiphonEvent;
+import org.bukkit.Server;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -30,6 +34,12 @@ public class SiphonPlugin extends JavaPlugin {
 
         // broadcast enable event
         siphon.broadcastEvent(new SiphonEvent("enable"));
+
+        // register base API
+        Server server = this.getServer();
+        siphon.addRoute("GET", "/players", new GetPlayersHandlerImpl(siphon, server), "players.get");
+        siphon.addRoute("POST", "/command", new RunCommandHandlerImpl(this, siphon, server), "command.run");
+        siphon.addRoute("POST", "/chat", new BroadcastChatHandlerImpl(this, siphon, server), "chat.broadcast");
 
     }
 

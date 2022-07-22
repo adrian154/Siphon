@@ -1,11 +1,13 @@
 package dev.bithole.siphon.core;
 
 import com.google.gson.Gson;
+import dev.bithole.siphon.core.api.APIException;
 import dev.bithole.siphon.core.api.Siphon;
 import dev.bithole.siphon.core.api.SiphonEvent;
-import dev.bithole.siphon.core.base.CustomAppender;
+import dev.bithole.siphon.core.base.events.LogMessageEvent;
 import dev.bithole.siphon.core.handlers.AuthHandler;
 import dev.bithole.siphon.core.handlers.ErrorHandler;
+import dev.bithole.siphon.core.handlers.JsonBodyHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -15,7 +17,13 @@ import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HttpString;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Core;
+import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,11 +34,11 @@ import java.util.logging.Logger;
 
 public class SiphonImpl implements Siphon {
 
-    private Gson gson;
-    private SiphonConfig config;
-    private Undertow server;
-    private PathHandler pathHandler;
-    private ServerSentEventHandler sseHandler;
+    private final Gson gson;
+    private final SiphonConfig config;
+    private final Undertow server;
+    private final PathHandler pathHandler;
+    private final ServerSentEventHandler sseHandler;
     public final Logger logger;
 
     public SiphonImpl(Logger logger) throws IOException {
@@ -48,7 +56,7 @@ public class SiphonImpl implements Siphon {
 
         this.server = Undertow.builder()
                 .addHttpListener(config.getPort(), "0.0.0.0")
-                .setHandler(new ErrorHandler(this, new AuthHandler(this, pathHandler)))
+                .setHandler(new ErrorHandler(this, new AuthHandler(this, new JsonBodyHandler(pathHandler))))
                 .build();
 
         this.server.start();
@@ -100,6 +108,28 @@ public class SiphonImpl implements Siphon {
 
     }
 
+    @Override
+    public void addRoute(String method, String path, HttpHandler handler, String permission) {
+
+        HttpString methodStr = new HttpString(method);
+        pathHandler.addPrefixPath(path, exchange -> {
+
+            // make sure method is right
+            if(!exchange.getRequestMethod().equals(methodStr)) {
+                throw new APIException(405, "Method not allowed");
+            }
+
+            // check if client is authenticated
+            if(!exchange.getAttachment(AuthHandler.CLIENT).testPermission(permission)) {
+                throw new APIException(403, "You are not authorized to access that endpoint");
+            }
+
+            handler.handleRequest(exchange);
+
+        });
+
+    }
+
     private static class DefaultHandler implements HttpHandler {
 
         @Override
@@ -110,4 +140,31 @@ public class SiphonImpl implements Siphon {
 
     }
 
+    @Plugin(name="Siphon", category= Core.CATEGORY_NAME, elementType= Appender.ELEMENT_TYPE)
+    public static class CustomAppender extends AbstractAppender {
+
+        private final SiphonImpl siphon;
+
+        public CustomAppender(SiphonImpl siphon) {
+            super(
+                    "SiphonAppender",
+                    null,
+                    PatternLayout.newBuilder().withPattern("%msg").build(),
+                    false,
+                    null
+            );
+            this.siphon = siphon;
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            siphon.broadcastEvent(new LogMessageEvent(event.toImmutable()));
+        }
+
+        @Override
+        public boolean isStarted() {
+            return true;
+        }
+
+    }
 }

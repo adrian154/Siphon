@@ -15,8 +15,8 @@ public class SiphonConfig {
 
     private static final File CLIENTS_FILE = new File("siphon.json");
 
-    private Gson gson;
-    private Map<String, Client> clients;
+    private final Gson gson;
+    private final Map<String, Client> clients;
     private int port;
 
     public SiphonConfig() throws IOException {
@@ -37,7 +37,7 @@ public class SiphonConfig {
                 addClient(client);
             }
 
-            this.port = port;
+            this.port = config.port;
 
         } else {
             save();
@@ -71,7 +71,7 @@ public class SiphonConfig {
         return clients.values();
     }
 
-    // TODO: probably should be using a Record for this.
+    // Gson doesn't support records :(
     private static class Config {
 
         public final Collection<Client> clients;

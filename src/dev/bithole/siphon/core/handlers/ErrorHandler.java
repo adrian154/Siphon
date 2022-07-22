@@ -18,12 +18,11 @@ public class ErrorHandler implements HttpHandler {
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    public void handleRequest(HttpServerExchange exchange) {
         try {
             next.handleRequest(exchange);
         } catch(Exception ex) {
-            if(ex instanceof APIException) {
-                APIException apiException = (APIException) ex;
+            if(ex instanceof APIException apiException) {
                 exchange.setStatusCode(apiException.status);
                 siphon.sendJSON(exchange, new APIException.ErrorResponse(apiException));
             } else {
