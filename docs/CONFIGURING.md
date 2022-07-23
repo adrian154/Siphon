@@ -39,3 +39,7 @@ To add a new client, use the `/addclient` command.
 
 * `/addclient awesome-app key players.get chat.broadcast`
 * `/addclient admin coolpassword111 *`
+
+# TLS/HTTPS
+
+Currently, Siphon does not natively support TLS. It is **strongly recommended** that you only use Siphon behind a reverse proxy.
