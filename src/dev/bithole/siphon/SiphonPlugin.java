@@ -41,6 +41,10 @@ public class SiphonPlugin extends JavaPlugin {
         siphon.addRoute("POST", "/command", new RunCommandHandlerImpl(this, siphon, server), "command.run");
         siphon.addRoute("POST", "/chat", new BroadcastChatHandlerImpl(this, siphon, server), "chat.broadcast");
 
+        // register commands
+        this.getCommand("addclient").setExecutor(new AddClientCommand(siphon));
+        this.getCommand("removeclient").setExecutor(new RemoveClientCommand(siphon));
+
     }
 
     @Override

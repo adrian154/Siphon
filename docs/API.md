@@ -76,6 +76,8 @@ Several built-in HTTP endpoints are available for querying information or trigge
 
 ## GET /players
 
+**Permission:** `players.get`
+
 **Response:** a JSON Object
 
 ```
@@ -92,6 +94,8 @@ Several built-in HTTP endpoints are available for querying information or trigge
 
 This endpoint runs the supplied command.
 
+**Permission:** `command.run`
+
 **Body:** a JSON String
 
 **Response:** None
@@ -100,7 +104,9 @@ This endpoint runs the supplied command.
 
 This endpoint broadcasts a chat message to all online players.
 
-**Body:** a JSON String
+**Permission:** `chat.broadcast`
+
+**Body:** a chat component
 
 **Response:** None
 
@@ -214,7 +220,11 @@ Siphon offers a convenient API for adding new API methods and events in your own
 
 # Custom Endpoints
 
-TODO
+Siphon uses [Undertow](https://undertow.io/) as the underlying HTTP server. As such, custom endpoints should implement its [HttpHandler](https://undertow.io/javadoc/2.1.x/index.html) interface. Handlers can be added using the [Siphon#addRoute](https://github.com/adrian154/Siphon/blob/056f3e4878595d3fabbee16e0270df4451eec9fd/src/dev/bithole/siphon/core/api/Siphon.java#L8) method.
+
+If a request's `Content-Type` is equal to `application/json`, Siphon will attempt to parse the body as JSON and attach it to the `HttpServerExchange` which will be passed to your custom handler. The attachment key is a static member of [JsonBodyHandler](https://github.com/adrian154/Siphon/blob/056f3e4878595d3fabbee16e0270df4451eec9fd/src/dev/bithole/siphon/core/handlers/JsonBodyHandler.java#L15).
+
+For an example, check how the [Get Players](https://github.com/adrian154/Siphon/blob/master/src/dev/bithole/siphon/core/base/GetPlayersHandler.java) route is implemented.
 
 # Custom Events
 

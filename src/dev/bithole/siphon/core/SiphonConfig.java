@@ -22,7 +22,7 @@ public class SiphonConfig {
     public SiphonConfig() throws IOException {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.clients = new HashMap<>();
-        this.port = 8080;
+        this.port = 20560;
         this.load();
     }
 
