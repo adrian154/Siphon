@@ -106,10 +106,6 @@ public class Client {
         this.permissions.add(permission);
     }
 
-    public void deletePermission(String permission) {
-        this.permissions.remove(permission);
-    }
-
     public boolean testPermission(String permission) {
 
         if(permissions.contains(permission)) return true;
