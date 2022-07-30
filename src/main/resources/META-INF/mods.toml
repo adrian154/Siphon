@@ -1,0 +1,9 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="MIT"
+[[mods]]
+modId="siphon"
+version="${file.jarVersion}"
+displayName="Siphon"
+authors="adrian154"
+description="An epic REST API for your Minecraft server"
