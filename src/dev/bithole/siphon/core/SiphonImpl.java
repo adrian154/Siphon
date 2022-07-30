@@ -6,6 +6,7 @@ import dev.bithole.siphon.core.api.Siphon;
 import dev.bithole.siphon.core.api.SiphonEvent;
 import dev.bithole.siphon.core.base.events.LogMessageEvent;
 import dev.bithole.siphon.core.handlers.AuthHandler;
+import dev.bithole.siphon.core.handlers.CORSHandler;
 import dev.bithole.siphon.core.handlers.ErrorHandler;
 import dev.bithole.siphon.core.handlers.JsonBodyHandler;
 import io.undertow.Handlers;
@@ -56,7 +57,11 @@ public class SiphonImpl implements Siphon {
 
         this.server = Undertow.builder()
                 .addHttpListener(config.getPort(), "0.0.0.0")
-                .setHandler(new ErrorHandler(this, new AuthHandler(this, new JsonBodyHandler(pathHandler))))
+                .setHandler(new ErrorHandler(this,
+                        new CORSHandler(config,
+                                new AuthHandler(this,
+                                        new JsonBodyHandler(
+                                                pathHandler)))))
                 .build();
 
         this.server.start();

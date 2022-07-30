@@ -33,8 +33,6 @@ public class AuthHandler implements HttpHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
 
-        exchange.getSourceAddress();
-
         // ratelimit clients that send a lot of invalid auth requests
         Long lastAuthFailTime = lastFailedAuth.get(exchange.getSourceAddress());
         if(lastAuthFailTime != null && System.currentTimeMillis() - lastAuthFailTime < AUTH_FAIL_TIMEOUT) {
@@ -43,22 +41,21 @@ public class AuthHandler implements HttpHandler {
 
         String authHeader = exchange.getRequestHeaders().getFirst(new HttpString("Authorization"));
         if(authHeader == null) {
-            exchange.getResponseHeaders().put(new HttpString("WWW-Authenticate"), "Basic realm=\"Siphon\"");
             throw new APIException(401, "You must authenticate to access this API");
         }
 
         String[] parts = authHeader.split("\\s+");
         if(parts.length != 2) {
-            throw new APIException(400, "Invalid authorization header");
+            throw new APIException(401, "Invalid authorization header");
         }
 
         if(!parts[0].equals("Basic")) {
-            throw new APIException(400, "Incorrect authorization scheme, must be Basic");
+            throw new APIException(401, "Incorrect authorization scheme, must be Basic");
         }
 
         String[] credentials = new String(Base64.getDecoder().decode(parts[1])).split(":");
         if(credentials.length != 2) {
-            throw new APIException(400, "Malformed credentials string");
+            throw new APIException(401, "Malformed credentials string");
         }
 
         Client client = siphon.getConfig().getClient(credentials[0]);

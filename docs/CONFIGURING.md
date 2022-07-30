@@ -13,13 +13,15 @@ All of Siphon's data is persisted in a single file called `siphon.js`, located i
       "webhookURL": "http://localhost/"
     }
   ],
-  "port": 20560
+  "port": 20560,
+  "allowCrossOrigin": false
 }
 ```
 
 Here is the full structure of the config object:
 
 * `port`: The port which the webserver listens on. Unless you are running the server as a superuser (which you should not be doing), you will have to pick a port above 1024 to bind to.
+* `allowCrossOrigin`: Whether cross-origin resource sharing (CORS) is enabled. When set to true, an `Access-Control-Allow-Origin` header with value `*` will be sent for all requests.
 * `clients`: A list of clients
   * `name`: The client name. This value must be unique.
   * `passwordHash`, `salt`, `keyHash`: Values used for authentication. Don't touch these unless you have a good reason to.

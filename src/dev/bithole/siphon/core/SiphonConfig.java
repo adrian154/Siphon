@@ -18,15 +18,18 @@ public class SiphonConfig {
     private final Gson gson;
     private final Map<String, Client> clients;
     private int port;
+    private boolean allowCrossOrigin;
 
     public SiphonConfig() throws IOException {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.clients = new HashMap<>();
         this.port = 20560;
+        this.allowCrossOrigin = false;
         this.load();
     }
 
     public void load() throws IOException {
+        clients.clear();
         if(CLIENTS_FILE.exists()) {
 
             Config config = gson.fromJson(Files.readString(CLIENTS_FILE.toPath()), Config.class);
@@ -38,6 +41,7 @@ public class SiphonConfig {
             }
 
             this.port = config.port;
+            this.allowCrossOrigin = config.allowCrossOrigin;
 
         } else {
             save();
@@ -45,7 +49,7 @@ public class SiphonConfig {
     }
 
     public void save() throws IOException {
-        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(new Config(clients.values(), port)), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(new Config(clients.values(), port, allowCrossOrigin)), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public void addClient(Client client) {
@@ -71,15 +75,21 @@ public class SiphonConfig {
         return clients.values();
     }
 
+    public boolean allowCrossOrigin() {
+        return allowCrossOrigin;
+    }
+
     // Gson doesn't support records :(
     private static class Config {
 
         public final Collection<Client> clients;
         public final int port;
+        public final boolean allowCrossOrigin;
 
-        public Config(Collection<Client> clients, int port) {
+        public Config(Collection<Client> clients, int port, boolean allowCrossOrigin) {
             this.clients = clients;
             this.port = port;
+            this.allowCrossOrigin = allowCrossOrigin;
         }
 
     }
