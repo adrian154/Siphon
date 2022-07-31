@@ -1,73 +1,74 @@
 package dev.bithole.siphon;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.bithole.siphon.core.Client;
 import dev.bithole.siphon.core.SiphonImpl;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 
-public class AddClientCommand implements CommandExecutor {
+public class AddClientCommand {
 
-    private final SiphonImpl siphon;
-
-    public AddClientCommand(SiphonImpl siphon) {
-        this.siphon = siphon;
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, SiphonImpl siphon) {
+        dispatcher.register(Commands.literal("add-client")
+                .requires(source -> source.hasPermission(4))
+                .then(Commands.argument("clientName", StringArgumentType.word())
+                        .then(Commands.argument("passwordOrKey", StringArgumentType.word())
+                                .executes(ctx -> addClient(ctx.getSource(), StringArgumentType.getString(ctx, "clientName"), StringArgumentType.getString(ctx, "passwordOrKey"), new String[] {}, siphon))
+                                .then(Commands.argument("permissions", StringArgumentType.greedyString())
+                                        .executes(ctx -> addClient(ctx.getSource(), StringArgumentType.getString(ctx, "clientName"), StringArgumentType.getString(ctx, "passwordOrKey"), StringArgumentType.getString(ctx, "permimssions").split("\\s+"), siphon))))));
     }
 
-    @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
-
-        if(args.length < 2) {
-            return false;
-        }
-
-        String name = args[0];
-        List<String> permissions = Arrays.asList(Arrays.copyOfRange(args, 2, args.length));
+    private static int addClient(CommandSourceStack source, String name, String passwordOrKey, String[] permissions, SiphonImpl siphon) {
 
         if(siphon.getConfig().getClient(name) != null) {
-            commandSender.sendMessage(ChatColor.RED + "A client with that name already exists");
-            return true;
+            source.sendFailure(new TextComponent("A client with that name exists already"));
+            return 1;
         }
 
         Client client;
-        if(args[1].equals("key")) {
+        if(passwordOrKey.equals("key")) {
+
+            // generate key
             byte[] key = Client.generateKey();
             client = new Client(name, key);
+
+            // make clickable message
             String keyStr = Base64.getEncoder().encodeToString(key);
             TextComponent copyableKey = new TextComponent("click to copy");
-            copyableKey.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, keyStr));
-            copyableKey.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(keyStr)));
-            copyableKey.setColor(ChatColor.GREEN);
-            commandSender.spigot().sendMessage(new ComponentBuilder("Key: [").append(copyableKey).append("]").create());
-            commandSender.sendMessage(ChatColor.RED + "Make sure to copy the key as you can never access it again!");
+            Style keyStyle = Style.EMPTY
+                    .applyFormat(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, keyStr))
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(keyStr)));
+            source.sendSuccess(new TextComponent("Key: [").append(copyableKey.withStyle(keyStyle)).append("]"), false);
+
         } else {
-            client = new Client(name, args[1]);
+            client = new Client(name, passwordOrKey);
         }
 
-        permissions.forEach(permission -> client.addPermission(permission));
-        siphon.getConfig().addClient(client);
+        for(String permission: permissions) {
+            client.addPermission(permission);
+        }
 
+        siphon.getConfig().addClient(client);
         try {
             siphon.getConfig().save();
         } catch(IOException ex) {
-            commandSender.sendMessage(ChatColor.RED + "Failed to update config");
-            // FIXME: log exception
+            source.sendFailure(new TextComponent("Failed to update config"));
+            return 1;
         }
 
-        commandSender.sendMessage(ChatColor.GREEN + "Client successfully added!");
-
-        return true;
+        source.sendSuccess(new TextComponent("Client successfully added!"), true);
+        return 0;
 
     }
+
 }

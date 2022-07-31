@@ -1,23 +1,20 @@
 package dev.bithole.siphon.base;
 
-import dev.bithole.siphon.SiphonPlugin;
+import dev.bithole.siphon.SiphonMod;
 import dev.bithole.siphon.core.SiphonImpl;
-import org.bukkit.Server;
 
 public class RunCommandHandlerImpl extends dev.bithole.siphon.core.base.RunCommandHandler {
 
-    private final SiphonPlugin plugin;
-    private final Server server;
+    private final SiphonMod mod;
 
-    public RunCommandHandlerImpl(SiphonPlugin plugin, SiphonImpl siphon, Server server) {
+    public RunCommandHandlerImpl(SiphonMod mod, SiphonImpl siphon) {
         super(siphon);
-        this.plugin = plugin;
-        this.server = server;
+        this.mod = mod;
     }
 
     @Override
     protected void runCommand(String command) {
-        server.getScheduler().runTask(plugin, () -> server.dispatchCommand(server.getConsoleSender(), command));
+        mod.getServer().getCommands().performCommand(mod.getServer().createCommandSourceStack(), command);
     }
 
 }
