@@ -48,8 +48,6 @@ public class SiphonImpl implements Siphon {
         this.config = new SiphonConfig();
         this.gson = new Gson();
 
-        this.setupAppender();
-
         // set up path handler, which will control all of our routes
         this.pathHandler = Handlers.path(new DefaultHandler());
         this.sseHandler = Handlers.serverSentEvents();
@@ -64,6 +62,7 @@ public class SiphonImpl implements Siphon {
                                                 pathHandler)))))
                 .build();
 
+        this.setupAppender();
         this.server.start();
 
     }

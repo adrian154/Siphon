@@ -24,7 +24,7 @@ public class AddClientCommand {
                         .then(Commands.argument("passwordOrKey", StringArgumentType.word())
                                 .executes(ctx -> addClient(ctx.getSource(), StringArgumentType.getString(ctx, "clientName"), StringArgumentType.getString(ctx, "passwordOrKey"), new String[] {}, siphon))
                                 .then(Commands.argument("permissions", StringArgumentType.greedyString())
-                                        .executes(ctx -> addClient(ctx.getSource(), StringArgumentType.getString(ctx, "clientName"), StringArgumentType.getString(ctx, "passwordOrKey"), StringArgumentType.getString(ctx, "permimssions").split("\\s+"), siphon))))));
+                                        .executes(ctx -> addClient(ctx.getSource(), StringArgumentType.getString(ctx, "clientName"), StringArgumentType.getString(ctx, "passwordOrKey"), StringArgumentType.getString(ctx, "permissions").split("\\s+"), siphon))))));
     }
 
     private static int addClient(CommandSourceStack source, String name, String passwordOrKey, String[] permissions, SiphonImpl siphon) {

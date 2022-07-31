@@ -1,7 +1,9 @@
 package dev.bithole.siphon;
 
 import com.mojang.realmsclient.client.Ping;
+import dev.bithole.siphon.core.SiphonImpl;
 import dev.bithole.siphon.core.api.Siphon;
+import dev.bithole.siphon.core.api.SiphonEvent;
 import dev.bithole.siphon.core.base.events.ChatEvent;
 import dev.bithole.siphon.core.base.events.PlayerDeathEvent;
 import dev.bithole.siphon.core.base.events.PlayerJoinEvent;
@@ -11,13 +13,17 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EventHandler {
 
-    private Siphon siphon;
+    private SiphonMod mod;
+    private SiphonImpl siphon;
 
-    public EventHandler(Siphon siphon) {
+    public EventHandler(SiphonMod mod, SiphonImpl siphon) {
+        this.mod = mod;
         this.siphon = siphon;
     }
 
@@ -41,6 +47,17 @@ public class EventHandler {
         if (event.getEntity() instanceof Player player) {
             siphon.broadcastEvent(new PlayerDeathEvent(player.getUUID(), player.getScoreboardName(), event.getSource().getLocalizedDeathMessage(player).getString()));
         }
+    }
+
+    @SubscribeEvent
+    public void onServerStarted(ServerStartedEvent event) {
+        siphon.broadcastEvent(new SiphonEvent("enable"));
+        mod.setServer(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStopping(ServerStoppingEvent event) {
+        siphon.broadcastEvent(new SiphonEvent("disable"));
     }
 
 }

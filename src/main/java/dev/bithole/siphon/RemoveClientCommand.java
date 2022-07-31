@@ -8,6 +8,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.TextComponent;
 
+import java.io.IOException;
+
 public class RemoveClientCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, SiphonImpl siphon) {
@@ -20,9 +22,15 @@ public class RemoveClientCommand {
     private static int removeClient(CommandSourceStack source, String name, SiphonImpl siphon) {
         Client client = siphon.getConfig().getClient(name);
         if(client != null) {
-            siphon.getConfig().removeClient(client);
-            source.sendSuccess(new TextComponent("Client was removed"), true);
-            return 0;
+            try {
+                siphon.getConfig().removeClient(client);
+                siphon.getConfig().save();
+                source.sendSuccess(new TextComponent("Client was removed"), true);
+                return 0;
+            } catch(IOException ex) {
+                source.sendFailure(new TextComponent("Failed to update config"));
+                return 1;
+            }
         }
         source.sendFailure(new TextComponent("There is no client called " + name));
         return 1;

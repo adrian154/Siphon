@@ -6,6 +6,7 @@ import dev.bithole.siphon.base.BroadcastChatHandlerImpl;
 import dev.bithole.siphon.base.GetPlayersHandlerImpl;
 import dev.bithole.siphon.base.RunCommandHandlerImpl;
 import dev.bithole.siphon.core.SiphonImpl;
+import dev.bithole.siphon.core.api.Siphon;
 import dev.bithole.siphon.core.api.SiphonEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
@@ -34,7 +35,8 @@ public class SiphonMod {
             throw new RuntimeException("Failed to instantiate server", ex);
         }
 
-        MinecraftForge.EVENT_BUS.register(new EventHandler(siphon));
+        MinecraftForge.EVENT_BUS.register(new EventHandler(this, siphon));
+        MinecraftForge.EVENT_BUS.register(this);
         siphon.addRoute("GET", "/players", new GetPlayersHandlerImpl(this, siphon), "players.get");
         siphon.addRoute("POST", "/command", new RunCommandHandlerImpl(this, siphon), "command.run");
         siphon.addRoute("POST", "/chat", new BroadcastChatHandlerImpl(this, siphon), "chat.broadcast");
@@ -45,15 +47,12 @@ public class SiphonMod {
         return server;
     }
 
-    @SubscribeEvent
-    public void onServerStarted(ServerStartedEvent event) {
-        siphon.broadcastEvent(new SiphonEvent("enable"));
+    public void setServer(MinecraftServer server) {
         this.server = server;
     }
 
-    @SubscribeEvent
-    public void onServerStopping(ServerStoppingEvent event) {
-        siphon.broadcastEvent(new SiphonEvent("disable"));
+    public Siphon getSiphon() {
+        return siphon;
     }
 
     @SubscribeEvent
