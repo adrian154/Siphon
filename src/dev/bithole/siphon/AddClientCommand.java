@@ -62,6 +62,7 @@ public class AddClientCommand implements CommandExecutor {
             siphon.getConfig().save();
         } catch(IOException ex) {
             commandSender.sendMessage(ChatColor.RED + "Failed to update config");
+            return true;
             // FIXME: log exception
         }
 
