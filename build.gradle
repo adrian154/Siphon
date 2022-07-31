@@ -11,9 +11,10 @@ buildscript {
 plugins {
     id 'eclipse'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 apply plugin: 'net.minecraftforge.gradle'
-
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = '1.0'
 group = 'dev.bithole.siphon'
@@ -77,19 +78,33 @@ minecraft {
     }
 }
 
+// fix issue where libs arent loaded in dev environment
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
+
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
 
 }
 
+configurations {
+    shade
+    library.extendsFrom shade
+    implementation.extendsFrom library
+}
+
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
-    implementation 'io.undertow:undertow-core:2.1.0.Final'
-    implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.70'
+    library 'io.undertow:undertow-core:2.1.0.Final'
+    library 'org.bouncycastle:bcprov-ext-jdk15on:1.70'
 }
 
 jar {
+    archiveClassifier = ''
     manifest {
         attributes([
                 "Specification-Title"     : "Siphon",
@@ -101,6 +116,18 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
+}
+
+shadowJar {
+    archiveClassifier = 'shaded'
+    configurations = [project.configurations.shade]
+    finalizedBy 'reobfShadowJar'
+}
+
+assemble.dependsOn shadowJar
+
+reobf {
+    shadowJar {}
 }
 
 jar.finalizedBy('reobfJar')
