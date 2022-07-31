@@ -36,9 +36,4 @@ public class EventListener implements Listener {
         siphon.broadcastEvent(new PlayerDeathEvent(event.getEntity().getPlayer().getUniqueId(), event.getEntity().getPlayer().getName(), event.getDeathMessage()));
     }
 
-    @EventHandler(priority=EventPriority.MONITOR)
-    public void onServerListPing(ServerListPingEvent event) {
-        siphon.broadcastEvent(new PingEvent(event.getAddress()));
-    }
-
 }
