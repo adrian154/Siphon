@@ -183,17 +183,6 @@ This event fires whenever a player quits.
 }
 ```
 
-## Event: ping
-
-This event fires whenever the server receives a server list ping.
-
-```
-{
-  "event": "ping",
-  "address": String
-}
-```
-
 ## Event: enable
 
 This event fires whenever the Siphon plugin is enabled, usually when the server starts.
