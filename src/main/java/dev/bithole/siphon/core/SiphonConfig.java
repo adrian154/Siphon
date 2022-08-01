@@ -7,9 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SiphonConfig {
 
@@ -18,13 +16,13 @@ public class SiphonConfig {
     private final Gson gson;
     private final Map<String, Client> clients;
     private int port;
-    private boolean allowCrossOrigin;
+    private Set<String> allowedOrigins;
 
     public SiphonConfig() throws IOException {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.clients = new HashMap<>();
         this.port = 20560;
-        this.allowCrossOrigin = false;
+        this.allowedOrigins = Collections.emptySet();
         this.load();
     }
 
@@ -41,7 +39,7 @@ public class SiphonConfig {
             }
 
             this.port = config.port;
-            this.allowCrossOrigin = config.allowCrossOrigin;
+            this.allowedOrigins = config.allowedOrigins;
 
         } else {
             save();
@@ -49,7 +47,7 @@ public class SiphonConfig {
     }
 
     public void save() throws IOException {
-        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(new Config(clients.values(), port, allowCrossOrigin)), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(CLIENTS_FILE.toPath(), gson.toJson(new Config(clients.values(), port, allowedOrigins)), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public void addClient(Client client) {
@@ -75,8 +73,8 @@ public class SiphonConfig {
         return clients.values();
     }
 
-    public boolean allowCrossOrigin() {
-        return allowCrossOrigin;
+    public boolean originIsAllowed(String origin) {
+        return allowedOrigins.contains(origin);
     }
 
     // Gson doesn't support records :(
@@ -84,12 +82,12 @@ public class SiphonConfig {
 
         public final Collection<Client> clients;
         public final int port;
-        public final boolean allowCrossOrigin;
+        public final Set<String> allowedOrigins;
 
-        public Config(Collection<Client> clients, int port, boolean allowCrossOrigin) {
+        public Config(Collection<Client> clients, int port, Set<String> allowedOrigins) {
             this.clients = clients;
             this.port = port;
-            this.allowCrossOrigin = allowCrossOrigin;
+            this.allowedOrigins = allowedOrigins;
         }
 
     }

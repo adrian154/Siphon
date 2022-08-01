@@ -17,6 +17,7 @@ import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HttpString;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Core;
@@ -162,7 +163,9 @@ public class SiphonImpl implements Siphon {
 
         @Override
         public void append(LogEvent event) {
-            siphon.broadcastEvent(new LogMessageEvent(event.toImmutable()));
+            if(event.getLevel().compareTo(Level.TRACE) < 0) {
+                siphon.broadcastEvent(new LogMessageEvent(event));
+            }
         }
 
         @Override
