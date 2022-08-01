@@ -10,7 +10,7 @@ import io.undertow.server.HttpServerExchange;
 
 public abstract class BroadcastChatHandler implements HttpHandler {
 
-    protected abstract void broadcastMessage(JsonObject element);
+    protected abstract void broadcastMessage(JsonElement element);
     protected final SiphonImpl siphon;
 
     public BroadcastChatHandler(SiphonImpl siphon) {
@@ -20,16 +20,12 @@ public abstract class BroadcastChatHandler implements HttpHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
 
-        try {
-            JsonObject object = exchange.getAttachment(JsonBodyHandler.BODY).getAsJsonObject();
-            if(object == null) {
-                throw new APIException(400);
-            }
-            broadcastMessage(object);
-            exchange.endExchange();
-        } catch(IllegalStateException ex) {
+        JsonElement component = exchange.getAttachment(JsonBodyHandler.BODY);
+        if(component == null) {
             throw new APIException(400);
         }
+        broadcastMessage(component);
+        exchange.endExchange();
 
     }
 

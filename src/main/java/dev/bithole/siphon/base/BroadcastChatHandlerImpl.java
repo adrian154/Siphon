@@ -1,5 +1,6 @@
 package dev.bithole.siphon.base;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.bithole.siphon.SiphonMod;
 import dev.bithole.siphon.core.SiphonImpl;
@@ -19,8 +20,8 @@ public class BroadcastChatHandlerImpl extends BroadcastChatHandler {
     }
 
     @Override
-    protected void broadcastMessage(JsonObject object) {
-        Component component = Component.Serializer.fromJson(object);
+    protected void broadcastMessage(JsonElement element) {
+        Component component = Component.Serializer.fromJson(element);
         mod.getServer().getPlayerList().broadcastMessage(component, ChatType.SYSTEM, UUID.randomUUID());
     }
 

@@ -93,7 +93,7 @@ repositories {
 
 configurations {
     shade
-    library.extendsFrom shade
+    shade.extendsFrom library
     implementation.extendsFrom library
 }
 
