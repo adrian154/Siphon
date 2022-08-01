@@ -12,7 +12,6 @@ Here's what you can do with Siphon:
   * Player join
   * Player quit
   * Player death
-  * Server list ping
   * Log message
 * Define custom HTTP endpoints, or use one of the predefined ones:
   * Run commands
